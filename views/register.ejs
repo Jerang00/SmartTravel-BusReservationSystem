@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - BusGo</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <main class="auth-section">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>Create Account</h1>
+                    <p>Join BusGo for hassle-free bus bookings</p>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}"
+                            placeholder="Enter your phone number">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required placeholder="Create a password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select your role</option>
+                            <option value="Passenger">Passenger</option>
+                            <option value="BusOperator">Bus Operator</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        Create Account
+                    </button>
+
+                    <p class="register-link">
+                        Already have an account? <a href="/login">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </main>
+
+        <%- include('partials/footer') %>
+
+            <script>
+                async function handleRegister(event) {
+                    event.preventDefault();
+
+                    const form = event.target;
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const errorMessage = document.getElementById('errorMessage');
+
+                    // Get form data
+                    const name = form.name.value;
+                    const phone = form.phone.value;
+                    const email = form.email.value;
+                    const password = form.password.value;
+                    const role = form.role.value;
+
+                    try {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('loading');
+                        errorMessage.classList.remove('show');
+
+                        const response = await fetch('/register', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ name, phone, email, password, role })
+                        });
+
+                        const data = await response.json();
+
+                        if (response.ok) {
+                            window.location.href = '/'; // Redirect to home page after successful registration
+                        } else {
+                            errorMessage.textContent = data.error || 'Registration failed. Please try again.';
+                            errorMessage.classList.add('show');
+                        }
+                    } catch (error) {
+                        console.error('Registration error:', error);
+                        errorMessage.textContent = 'An error occurred. Please try again.';
+                        errorMessage.classList.add('show');
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
+                    }
+                }
+            </script>
+</body>
+
+</html>

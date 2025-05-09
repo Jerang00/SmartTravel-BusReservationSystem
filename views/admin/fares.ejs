@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Fares - BusGo Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <a href="/admin">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/admin/routes">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/admin/buses">
+                    <i class="fas fa-bus"></i> Buses
+                </a>
+                <a href="/admin/schedules">
+                    <i class="fas fa-calendar"></i> Schedules
+                </a>
+                <a href="/admin/bookings">
+                    <i class="fas fa-ticket-alt"></i> Bookings
+                </a>
+                <a href="/admin/users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="/admin/payments">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+                <a href="/admin/fares" class="active">
+                    <i class="fas fa-tag"></i> Fares
+                </a>
+                <a href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h1>Manage Fares</h1>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Schedule ID</th>
+                            <th>Route</th>
+                            <th>Bus Type</th>
+                            <th>Departure</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% fares.forEach(fare => { %>
+                            <tr>
+                                <td><%= fare.ScheduleID %></td>
+                                <td><%= fare.Source %> - <%= fare.Destination %></td>
+                                <td><%= fare.BusType %></td>
+                                <td><%= new Date(fare.DepartureTime).toLocaleString() %></td>
+                                <td>
+                                    <div class="price-input">
+                                        <input type="number" 
+                                               value="<%= fare.Price %>" 
+                                               min="0" 
+                                               step="10"
+                                               data-schedule-id="<%= fare.ScheduleID %>"
+                                               class="price-input-field">
+                                        <span>₹</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button class="btn-edit" data-schedule-id="<%= fare.ScheduleID %>">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Price update handlers
+            document.querySelectorAll('.price-input-field').forEach(input => {
+                input.addEventListener('change', function() {
+                    const scheduleId = this.dataset.scheduleId;
+                    const price = this.value;
+                    updateFare(scheduleId, price);
+                });
+            });
+
+            // View schedule handlers
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function() {
+                    const scheduleId = this.dataset.scheduleId;
+                    window.location.href = `/admin/schedules/${scheduleId}`;
+                });
+            });
+        });
+
+        function updateFare(scheduleId, price) {
+            fetch(`/admin/fares/${scheduleId}/update`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ price })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to update fare');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html> 

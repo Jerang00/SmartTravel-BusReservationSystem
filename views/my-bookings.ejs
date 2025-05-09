@@ -1,0 +1,29 @@
+<%- include('partials/navbar') %>
+    <main
+        style="display: flex; justify-content: center; align-items: flex-start; min-height: 60vh; background: #202a36;">
+        <div
+            style="background: #263143; color: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); padding: 2.5rem 2rem; min-width: 340px; margin-top: 3rem;">
+            <h1
+                style="font-size: 2rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px;">
+                My Bookings</h1>
+            <!-- Add your bookings display logic here -->
+            <% if (bookings && bookings.length> 0) { %>
+                <ul>
+                    <% bookings.forEach(function(booking) { %>
+                        <li>
+                            <strong>Route:</strong>
+                            <%= booking.Source %> to <%= booking.Destination %> |
+                                    <strong>Date:</strong>
+                                    <%= booking.BookingDate.toLocaleString ? booking.BookingDate.toLocaleString() :
+                                        booking.BookingDate %> |
+                                        <strong>Status:</strong>
+                                        <%= booking.Status %>
+                        </li>
+                        <% }) %>
+                </ul>
+                <% } else { %>
+                    <p>No bookings found.</p>
+                    <% } %>
+        </div>
+    </main>
+    <%- include('partials/footer') %>

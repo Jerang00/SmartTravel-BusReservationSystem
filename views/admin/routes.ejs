@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routes Management - Admin Panel</title>
+    <link rel="stylesheet" href="/css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <%- include('partials/sidebar') %>
+        
+        <main class="content">
+            <div class="content-header">
+                <h1>Routes Management</h1>
+                <button class="btn-primary" onclick="showAddModal()">
+                    <i class="fas fa-plus"></i> Add New Route
+                </button>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Route ID</th>
+                            <th>Source</th>
+                            <th>Destination</th>
+                            <th>Distance (km)</th>
+                            <th>Estimated Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% routes.forEach(route => { %>
+                            <tr>
+                                <td><%= route.RouteID %></td>
+                                <td><%= route.Source %></td>
+                                <td><%= route.Destination %></td>
+                                <td><%= route.Distance %></td>
+                                <td><%= route.EstimatedTime %></td>
+                                <td class="actions">
+                                    <button class="btn-edit" onclick='showEditModal("<%= JSON.stringify(route) %>")'>
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn-delete" onclick="confirmDelete('<%= route.RouteID %>')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Route Modal -->
+    <div id="routeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Route</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="routeForm" onsubmit="handleSubmit(event)">
+                <input type="hidden" id="routeId">
+                <div class="form-group">
+                    <label for="source">Source</label>
+                    <input type="text" id="source" name="source" required>
+                </div>
+                <div class="form-group">
+                    <label for="destination">Destination</label>
+                    <input type="text" id="destination" name="destination" required>
+                </div>
+                <div class="form-group">
+                    <label for="distance">Distance (km)</label>
+                    <input type="number" id="distance" name="distance" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="estimatedTime">Estimated Time (HH:MM)</label>
+                    <input type="time" id="estimatedTime" name="estimatedTime" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Route</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Route';
+            document.getElementById('routeForm').reset();
+            document.getElementById('routeId').value = '';
+            document.getElementById('routeModal').style.display = 'block';
+        }
+
+        function showEditModal(route) {
+            document.getElementById('modalTitle').textContent = 'Edit Route';
+            document.getElementById('routeId').value = route.RouteID;
+            document.getElementById('source').value = route.Source;
+            document.getElementById('destination').value = route.Destination;
+            document.getElementById('distance').value = route.Distance;
+            document.getElementById('estimatedTime').value = route.EstimatedTime;
+            document.getElementById('routeModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('routeModal').style.display = 'none';
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const routeId = document.getElementById('routeId').value;
+            const formData = {
+                source: document.getElementById('source').value,
+                destination: document.getElementById('destination').value,
+                distance: document.getElementById('distance').value,
+                estimatedTime: document.getElementById('estimatedTime').value
+            };
+
+            try {
+                const response = await fetch(`/admin/routes${routeId ? `/${routeId}` : ''}`, {
+                    method: routeId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Failed to save route');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while saving the route');
+            }
+        }
+
+        async function confirmDelete(routeId) {
+            if (confirm('Are you sure you want to delete this route?')) {
+                try {
+                    const response = await fetch(`/admin/routes/${routeId}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        window.location.reload();
+                    } else {
+                        alert('Failed to delete route');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while deleting the route');
+                }
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('routeModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html> 

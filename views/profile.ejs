@@ -1,0 +1,35 @@
+<%- include('partials/navbar') %>
+    <main
+        style="display: flex; justify-content: center; align-items: flex-start; min-height: 60vh; background: #202a36;">
+        <div
+            style="background: #263143; color: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.12); padding: 2.5rem 2rem; min-width: 340px; margin-top: 3rem;">
+            <h1
+                style="font-size: 2rem; font-weight: 600; margin-bottom: 1.5rem; text-align: center; letter-spacing: 1px;">
+                User Profile</h1>
+            <div style="margin-bottom: 1.2rem;">
+                <span style="font-weight: 500; color: #7ecfff;">Name:</span>
+                <span style="margin-left: 0.5rem;">
+                    <%= user.Name %>
+                </span>
+            </div>
+            <div style="margin-bottom: 1.2rem;">
+                <span style="font-weight: 500; color: #7ecfff;">Email:</span>
+                <span style="margin-left: 0.5rem;">
+                    <%= user.Email %>
+                </span>
+            </div>
+            <div style="margin-bottom: 1.2rem;">
+                <span style="font-weight: 500; color: #7ecfff;">Phone:</span>
+                <span style="margin-left: 0.5rem;">
+                    <%= user.PhoneNumber %>
+                </span>
+            </div>
+            <div style="margin-bottom: 1.2rem;">
+                <span style="font-weight: 500; color: #7ecfff;">Role:</span>
+                <span style="margin-left: 0.5rem; text-transform: capitalize;">
+                    <%= user.Role %>
+                </span>
+            </div>
+        </div>
+    </main>
+    <%- include('partials/footer') %>

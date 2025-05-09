@@ -1,0 +1,158 @@
+.confirmation-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+.confirmation-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.success-icon {
+  font-size: 4rem;
+  color: #4caf50;
+  margin-bottom: 1rem;
+}
+
+.confirmation-header h1 {
+  color: #4caf50;
+  margin-bottom: 0.5rem;
+}
+
+.confirmation-details {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.booking-info,
+.passenger-info {
+  margin-bottom: 2rem;
+}
+
+.booking-info h2,
+.passenger-info h2 {
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-item .label {
+  color: var(--text-secondary);
+}
+
+.info-item .value {
+  font-weight: bold;
+}
+
+.status-confirmed {
+  color: #4caf50;
+}
+
+.passenger-card {
+  background: var(--bg-primary);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.passenger-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.passenger-number {
+  font-weight: bold;
+}
+
+.seat-number {
+  color: var(--primary-color);
+}
+
+.passenger-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-item .label {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.detail-item .value {
+  font-weight: bold;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-secondary {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+@media print {
+  .navbar,
+  .confirmation-actions {
+    display: none;
+  }
+
+  .confirmation-details {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}

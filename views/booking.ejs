@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book a Bus - SmartTravel</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/booking.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <% const uniqueCities=[]; const cityNames=new Set(); cities.forEach(function(city) { if
+            (!cityNames.has(city.CityName)) { uniqueCities.push(city); cityNames.add(city.CityName); } }); %>
+
+            <main class="booking-section">
+                <div class="booking-container">
+                    <h1>Book Your Bus Ticket</h1>
+
+                    <div class="booking-search">
+                        <div class="form-group">
+                            <label for="from">From</label>
+                            <select id="from" name="from" required>
+                                <option value="">Select Departure City</option>
+                                <% uniqueCities.forEach(city=> { %>
+                                    <option value="<%= city.CityName %>" <%=selectedFrom===city.CityName ? 'selected'
+                                        : '' %>>
+                                        <%= city.CityName %>
+                                    </option>
+                                    <% }); %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="to">To</label>
+                            <select id="to" name="to" required>
+                                <option value="">Select Destination City</option>
+                                <% uniqueCities.forEach(city=> { %>
+                                    <option value="<%= city.CityName %>" <%=selectedTo===city.CityName ? 'selected' : ''
+                                        %>>
+                                        <%= city.CityName %>
+                                    </option>
+                                    <% }); %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date">Travel Date</label>
+                            <input type="date" id="date" name="date" min="<%= new Date().toISOString().split('T')[0] %>"
+                                value="<%= selectedDate || '' %>" required />
+                        </div>
+
+                        <button type="button" class="search-buses" onclick="searchBuses ()">
+                            Search Buses
+                        </button>
+                    </div>
+
+                    <div class="bus-listings">
+                        <h2>Available Buses</h2>
+                        <div class="bus-grid" id="busGrid">
+                            <% if (buses && buses.length> 0) { %>
+                                <% buses.forEach(bus=> { %>
+                                    <div class="bus-card">
+                                        <div class="bus-info">
+                                            <h3>
+                                                <%= bus.BusNumber %> - <%= bus.TypeName %>
+                                            </h3>
+                                            <div class="bus-details">
+                                                <span><i class="fas fa-clock"></i>
+                                                    <%= new Date(bus.DepartureTime).toLocaleTimeString() %>
+                                                </span>
+                                                <span><i class="fas fa-road"></i>
+                                                    <%= bus.Distance %> km
+                                                </span>
+                                                <span><i class="fas fa-users"></i>
+                                                    <%= bus.AvailableSeats %> seats available
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="bus-price">
+                                            <h4>₹<%= bus.BasePrice %>
+                                            </h4>
+                                            <button class="select-seats-btn"
+                                                onclick="openSeatModal('<%= encodeURIComponent(JSON.stringify(bus)) %>')">
+                                                Select Seats
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                                        <% } else if (selectedFrom && selectedTo && selectedDate) { %>
+                                            <p class="no-buses">No buses available for this route and date.</p>
+                                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Seat Selection Modal -->
+            <div class="modal" id="seatModal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Select Seats</h2>
+                        <button class="close-modal" onclick="closeModal()">&times;</button>
+                    </div>
+
+                    <div class="bus-info">
+                        <h3 id="selectedBusName"></h3>
+                        <p id="selectedBusDetails"></p>
+                    </div>
+
+                    <div class="seat-map">
+                        <div class="seat-row" id="seatRow1"></div>
+                        <div class="seat-row" id="seatRow2"></div>
+                        <div class="seat-row" id="seatRow3"></div>
+                        <div class="seat-row" id="seatRow4"></div>
+                        <div class="seat-row" id="seatRow5"></div>
+                        <div class="seat-row" id="seatRow6"></div>
+                        <div class="seat-row" id="seatRow7"></div>
+                        <div class="seat-row" id="seatRow8"></div>
+                    </div>
+
+                    <div class="seat-info">
+                        <div class="seat-type">
+                            <div class="seat available"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="seat-type">
+                            <div class="seat booked"></div>
+                            <span>Booked</span>
+                        </div>
+                        <div class="seat-type">
+                            <div class="seat selected"></div>
+                            <span>Selected</span>
+                        </div>
+                    </div>
+
+                    <div class="booking-summary">
+                        <p>Selected Seats: <span id="selectedSeats">None</span></p>
+                        <p>Total Price: ₹<span id="totalPrice">0</span></p>
+                    </div>
+
+                    <button class="proceed-payment" onclick="proceedToPayment()">
+                        Proceed to Payment
+                    </button>
+                </div>
+            </div>
+
+            <%- include('partials/footer') %>
+
+                <script>
+                    function searchBuses() {
+                        const from = document.getElementById('from').value;
+                        const to = document.getElementById('to').value;
+                        const date = document.getElementById('date').value;
+
+                        if (!from || !to || !date) {
+                            alert('Please fill in all fields');
+                            return;
+                        }
+
+                        const formattedDate = new Date(date).toISOString().split('T')[0];
+                        let url = `/booking?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${formattedDate}`;
+                        window.location.href = url;
+                    }
+
+                    let selectedSeats = new Set();
+                    let selectedBus = null;
+
+                    function openSeatModal(busData) {
+                        try {
+                            selectedBus = JSON.parse(decodeURIComponent(busData));
+                            document.getElementById('seatModal').style.display = 'block';
+                            document.getElementById('selectedBusName').textContent =
+                                `${selectedBus.BusNumber} - ${selectedBus.TypeName}`;
+                            document.getElementById('selectedBusDetails').textContent =
+                                `Departure: ${new Date(selectedBus.DepartureTime).toLocaleTimeString()} | Distance: ${selectedBus.Distance}km`;
+                            initializeSeatMap();
+                        } catch (error) {
+                            console.error('Modal open error:', error);
+                        }
+                    }
+
+                    function closeModal() {
+                        document.getElementById('seatModal').style.display = 'none';
+                        selectedSeats.clear();
+                        updateBookingSummary();
+                    }
+
+                    function initializeSeatMap() {
+                        const rows = [
+                            'seatRow1', 'seatRow2', 'seatRow3', 'seatRow4',
+                            'seatRow5', 'seatRow6', 'seatRow7', 'seatRow8'
+                        ];
+                        let seatNumber = 1;
+
+                        rows.forEach(rowId => {
+                            const row = document.getElementById(rowId);
+                            row.innerHTML = '';
+
+                            // Left side (2 seats)
+                            for (let i = 0; i < 2; i++) {
+                                const seat = document.createElement('div');
+                                seat.className = 'seat available';
+                                seat.textContent = seatNumber;
+                                seat.setAttribute('data-seat-number', seatNumber);
+                                seat.onclick = () => toggleSeat(seat, seatNumber);
+                                row.appendChild(seat);
+                                seatNumber++;
+                            }
+
+                            // Gap
+                            const gap = document.createElement('div');
+                            gap.style.display = 'inline-block';
+                            gap.style.width = '40px';
+                            row.appendChild(gap);
+
+                            // Right side (2 seats)
+                            for (let i = 0; i < 2; i++) {
+                                const seat = document.createElement('div');
+                                seat.className = 'seat available';
+                                seat.textContent = seatNumber;
+                                seat.setAttribute('data-seat-number', seatNumber);
+                                seat.onclick = () => toggleSeat(seat, seatNumber);
+                                row.appendChild(seat);
+                                seatNumber++;
+                                console.log("Created seat:", seatNumber);
+
+                            }
+
+
+                        });
+                    }
+
+
+                    function toggleSeat(seatElement, seatNumber) {
+                        if (seatElement.classList.contains('booked')) return;
+
+                        if (seatElement.classList.contains('selected')) {
+                            seatElement.classList.remove('selected');
+                            selectedSeats.delete(seatNumber);
+                        } else {
+                            seatElement.classList.add('selected');
+                            selectedSeats.add(seatNumber);
+                        }
+
+                        updateBookingSummary();
+                    }
+
+                    function updateBookingSummary() {
+                        const selectedSeatsElement = document.getElementById('selectedSeats');
+                        const totalPriceElement = document.getElementById('totalPrice');
+
+                        if (selectedSeats.size === 0) {
+                            selectedSeatsElement.textContent = 'None';
+                            totalPriceElement.textContent = '0';
+                        } else {
+                            selectedSeatsElement.textContent = Array.from(selectedSeats).join(', ');
+                            totalPriceElement.textContent = selectedSeats.size * selectedBus.BasePrice;
+                        }
+                    }
+
+                    function proceedToPayment() {
+                        if (selectedSeats.size === 0) {
+                            alert('Please select at least one seat to proceed.');
+                            return;
+                        }
+
+                        // Collect passenger info (for demo, just seat numbers)
+                        const passengers = Array.from(selectedSeats).map(seatNumber => ({
+                            seatNumber,
+                            name: "Passenger", // You can prompt for name/age/gender if needed
+                            age: 20,
+                            gender: "Male"
+                        }));
+
+                        // Prepare booking data
+                        const bookingData = {
+                            scheduleId: selectedBus.ScheduleID,
+                            passengers
+                        };
+
+                        // Create booking via API
+                        fetch('/create-booking', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify(bookingData)
+                        })
+                            .then(async res => {
+                                const contentType = res.headers.get('content-type');
+                                if (contentType && contentType.includes('application/json')) {
+                                    return res.json();
+                                } else {
+                                    // Probably got HTML (login page)
+                                    throw new Error('Not logged in or server error');
+                                }
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    window.location.href = `/payment?bookingId=${data.bookingId}`;
+                                } else {
+                                    alert('Booking failed: ' + (data.message || 'Unknown error'));
+                                }
+                            })
+                            .catch(err => {
+                                alert('Booking failed: ' + err.message);
+                            });
+                    }
+
+                    window.onclick = function (event) {
+                        const modal = document.getElementById('seatModal');
+                        if (event.target === modal) {
+                            closeModal();
+                        }
+                    };
+                </script>
+</body>
+
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Schedules - BusGo Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <a href="/admin">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/admin/routes">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/admin/buses">
+                    <i class="fas fa-bus"></i> Buses
+                </a>
+                <a href="/admin/schedules" class="active">
+                    <i class="fas fa-calendar"></i> Schedules
+                </a>
+                <a href="/admin/bookings">
+                    <i class="fas fa-ticket-alt"></i> Bookings
+                </a>
+                <a href="/admin/users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="/admin/payments">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+                <a href="/admin/fares">
+                    <i class="fas fa-tag"></i> Fares
+                </a>
+                <a href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h1>Manage Schedules</h1>
+                <button class="btn-primary" onclick="showAddScheduleModal()">
+                    <i class="fas fa-plus"></i> Add New Schedule
+                </button>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Schedule ID</th>
+                            <th>Route</th>
+                            <th>Bus</th>
+                            <th>Departure</th>
+                            <th>Arrival</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% schedules.forEach(schedule => { %>
+                            <tr>
+                                <td><%= schedule.ScheduleID %></td>
+                                <td><%= schedule.Source %> - <%= schedule.Destination %></td>
+                                <td><%= schedule.BusNumber %> (<%= schedule.BusType %>)</td>
+                                <td><%= new Date(schedule.DepartureTime).toLocaleString() %></td>
+                                <td><%= new Date(schedule.ArrivalTime).toLocaleString() %></td>
+                                <td>₹<%= schedule.Price %></td>
+                                <td>
+                                    <button class="btn-delete" data-schedule-id="<%= schedule.ScheduleID %>">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Schedule Modal -->
+    <div id="addScheduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Schedule</h2>
+                <button class="close-btn" onclick="closeAddScheduleModal()">&times;</button>
+            </div>
+            <form id="addScheduleForm" onsubmit="handleAddSchedule(event)">
+                <div class="form-group">
+                    <label for="routeId">Route</label>
+                    <select id="routeId" name="routeId" required>
+                        <% routes.forEach(route => { %>
+                            <option value="<%= route.RouteID %>">
+                                <%= route.Source %> - <%= route.Destination %>
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="busId">Bus</label>
+                    <select id="busId" name="busId" required>
+                        <% buses.forEach(bus => { %>
+                            <option value="<%= bus.BusID %>">
+                                <%= bus.BusNumber %> (<%= bus.BusType %>)
+                            </option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="departureTime">Departure Time</label>
+                    <input type="datetime-local" id="departureTime" name="departureTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="number" id="price" name="price" required min="0">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddScheduleModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showAddScheduleModal() {
+            document.getElementById('addScheduleModal').style.display = 'block';
+        }
+
+        function closeAddScheduleModal() {
+            document.getElementById('addScheduleModal').style.display = 'none';
+        }
+
+        function handleAddSchedule(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = {
+                routeId: formData.get('routeId'),
+                busId: formData.get('busId'),
+                departureTime: formData.get('departureTime'),
+                price: formData.get('price')
+            };
+
+            fetch('/admin/schedules', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to add schedule');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delete schedule handlers
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const scheduleId = this.dataset.scheduleId;
+                    if (confirm('Are you sure you want to delete this schedule?')) {
+                        fetch(`/admin/schedules/${scheduleId}`, {
+                            method: 'DELETE'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to delete schedule');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

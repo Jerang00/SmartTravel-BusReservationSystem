@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings - BusGo Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <a href="/admin">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/admin/routes">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/admin/buses">
+                    <i class="fas fa-bus"></i> Buses
+                </a>
+                <a href="/admin/schedules">
+                    <i class="fas fa-calendar"></i> Schedules
+                </a>
+                <a href="/admin/bookings" class="active">
+                    <i class="fas fa-ticket-alt"></i> Bookings
+                </a>
+                <a href="/admin/users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="/admin/payments">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+                <a href="/admin/fares">
+                    <i class="fas fa-tag"></i> Fares
+                </a>
+                <a href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h1>Manage Bookings</h1>
+            </div>
+
+            <div class="data-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>User</th>
+                            <th>Route</th>
+                            <th>Departure</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% bookings.forEach(booking => { %>
+                            <tr>
+                                <td><%= booking.BookingID %></td>
+                                <td><%= booking.UserName %></td>
+                                <td><%= booking.Source %> - <%= booking.Destination %></td>
+                                <td><%= new Date(booking.DepartureTime).toLocaleTimeString() %></td>
+                                <td><%= new Date(booking.BookingDate).toLocaleDateString() %></td>
+                                <td>
+                                    <span class="status-badge <%= booking.Status.toLowerCase() %>">
+                                        <%= booking.Status %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-edit" data-booking-id="<%= booking.BookingID %>">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <% if (booking.Status !== 'Cancelled') { %>
+                                        <button class="btn-delete" data-booking-id="<%= booking.BookingID %>">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    <% } %>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // View booking handlers
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookingId = this.dataset.bookingId;
+                    window.location.href = `/admin/bookings/${bookingId}`;
+                });
+            });
+
+            // Cancel booking handlers
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const bookingId = this.dataset.bookingId;
+                    if (confirm('Are you sure you want to cancel this booking?')) {
+                        fetch(`/admin/bookings/${bookingId}/cancel`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to cancel booking');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

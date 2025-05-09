@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - SmartTravel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/booking-confirmation.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <div class="confirmation-container">
+            <div class="confirmation-header">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h1>Booking Confirmed!</h1>
+                <p>Your booking has been successfully processed.</p>
+            </div>
+
+            <div class="confirmation-details">
+                <div class="booking-info">
+                    <h2>Booking Details</h2>
+                    <div class="info-item">
+                        <span class="label">Booking ID:</span>
+                        <span class="value">
+                            <%= booking.bookingId %>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Status:</span>
+                        <span class="value status-confirmed">Confirmed</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Total Amount:</span>
+                        <span class="value">₹<%= booking.totalAmount %></span>
+                    </div>
+                </div>
+
+                <div class="passenger-info">
+                    <h2>Passenger Details</h2>
+                    <% booking.passengers.forEach((passenger, index)=> { %>
+                        <div class="passenger-card">
+                            <div class="passenger-header">
+                                <span class="passenger-number">Passenger <%= index + 1 %></span>
+                                <span class="seat-number">Seat <%= passenger.seatNumber %></span>
+                            </div>
+                            <div class="passenger-details">
+                                <div class="detail-item">
+                                    <span class="label">Name:</span>
+                                    <span class="value">
+                                        <%= passenger.name %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Age:</span>
+                                    <span class="value">
+                                        <%= passenger.age %>
+                                    </span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="label">Gender:</span>
+                                    <span class="value">
+                                        <%= passenger.gender %>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                </div>
+            </div>
+
+            <div class="confirmation-actions">
+                <a href="/" class="btn btn-primary">Back to Home</a>
+                <button class="btn btn-secondary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Ticket
+                </button>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+</body>
+
+</html>

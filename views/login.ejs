@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - SmartTravel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <main class="auth-section">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Login to your account</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" placeholder="Enter your phone number">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+
+                <div class="auth-links">
+                    <a href="/forgot-password">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Login
+                </button>
+
+                <p class="register-link">
+                    Don't have an account? <a href="/register">Register here</a>
+                </p>
+            </form>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Get form data
+            const phone = form.phone.value;
+            const password = form.password.value;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                errorMessage.classList.remove('show');
+                
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    window.location.href = '/'; // Redirect to home page
+                } else {
+                    errorMessage.textContent = data.error || 'Login failed. Please try again.';
+                    errorMessage.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'An error occurred. Please try again.';
+                errorMessage.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+            }
+        }
+    </script>
+</body>
+</html>

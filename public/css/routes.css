@@ -1,0 +1,136 @@
+.seat-map {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  background: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.driver-seat {
+  width: 100px;
+  height: 50px;
+  background: #333;
+  margin: 0 auto 20px;
+  border-radius: 5px;
+}
+
+.seat-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.seat-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 60px; /* aisle width */
+  margin-bottom: 20px;
+}
+
+.seat-pair {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.seat {
+  width: 40px;
+  height: 40px;
+  background: #4caf50;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  margin: 5px;
+}
+
+.seat:hover {
+  transform: scale(1.1);
+}
+
+.seat.booked {
+  background: #f44336;
+  cursor: not-allowed;
+}
+
+.seat.selected {
+  background: #2196f3;
+}
+
+.seat.available {
+  background: #4caf50;
+}
+
+.aisle {
+  width: 30px;
+  height: 40px;
+  background: #ddd;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+.seat-info {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.seat-type {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.seat-type .seat {
+  width: 20px;
+  height: 20px;
+  cursor: default;
+}
+
+.seat-type .seat:hover {
+  transform: none;
+}
+
+.booking-summary {
+  margin-top: 20px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.booking-summary p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+
+.booking-summary span {
+  font-weight: bold;
+  color: #2196f3;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.book-now {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #2196f3;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+
+.book-now:hover {
+  background: #1976d2;
+}

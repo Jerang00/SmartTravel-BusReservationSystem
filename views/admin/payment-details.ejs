@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Details - BusGo Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <h2>Admin Panel</h2>
+            <nav>
+                <a href="/admin">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <a href="/admin/routes">
+                    <i class="fas fa-route"></i> Routes
+                </a>
+                <a href="/admin/buses">
+                    <i class="fas fa-bus"></i> Buses
+                </a>
+                <a href="/admin/schedules">
+                    <i class="fas fa-calendar"></i> Schedules
+                </a>
+                <a href="/admin/bookings">
+                    <i class="fas fa-ticket-alt"></i> Bookings
+                </a>
+                <a href="/admin/users">
+                    <i class="fas fa-users"></i> Users
+                </a>
+                <a href="/admin/payments" class="active">
+                    <i class="fas fa-money-bill-wave"></i> Payments
+                </a>
+                <a href="/admin/fares">
+                    <i class="fas fa-tag"></i> Fares
+                </a>
+                <a href="/admin/logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <div class="admin-content">
+            <div class="section-header">
+                <h1>Payment Details</h1>
+                <button class="btn-secondary" onclick="window.location.href='/admin/payments'">
+                    <i class="fas fa-arrow-left"></i> Back to Payments
+                </button>
+            </div>
+
+            <div class="payment-details-container">
+                <!-- Customer Information Section -->
+                <div class="payment-section customer-info">
+                    <h2>Customer Information</h2>
+                    <div class="info-table">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>Name</th>
+                                    <td><%= payment.UserName %></td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td><%= payment.UserPhone %></td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td><%= payment.UserEmail %></td>
+                                </tr>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <td><%= payment.BookingID %></td>
+                                </tr>
+                                <tr>
+                                    <th>Booking Status</th>
+                                    <td><span class="status-badge <%= payment.BookingStatus.toLowerCase() %>"><%= payment.BookingStatus %></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2>Journey Details</h2>
+                    <div class="info-table">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>From</th>
+                                    <td><%= payment.Source %></td>
+                                </tr>
+                                <tr>
+                                    <th>To</th>
+                                    <td><%= payment.Destination %></td>
+                                </tr>
+                                <tr>
+                                    <th>Departure</th>
+                                    <td><%= payment.DepartureTime %></td>
+                                </tr>
+                                <tr>
+                                    <th>Arrival</th>
+                                    <td><%= payment.ArrivalTime %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Payment Information Section -->
+                <div class="payment-section payment-info">
+                    <h2>Payment Information</h2>
+                    <div class="info-table">
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <td><%= payment.TransactionID %></td>
+                                </tr>
+                                <tr>
+                                    <th>Payment Date</th>
+                                    <td><%= payment.PaymentDate %></td>
+                                </tr>
+                                <tr>
+                                    <th>Amount</th>
+                                    <td>₹<%= payment.Amount %></td>
+                                </tr>
+                                <tr>
+                                    <th>Payment Method</th>
+                                    <td><%= payment.PaymentMethod %></td>
+                                </tr>
+                                <tr>
+                                    <th>Status</th>
+                                    <td><span class="status-badge <%= payment.Status.toLowerCase() %>"><%= payment.Status %></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <% if (payment.Status === 'Completed') { %>
+                        <div class="action-buttons">
+                            <button class="btn-delete" data-payment-id="<%= payment.TransactionID %>">
+                                <i class="fas fa-undo"></i> Process Refund
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const refundButton = document.querySelector('.btn-delete');
+            if (refundButton) {
+                refundButton.addEventListener('click', function() {
+                    const paymentId = this.dataset.paymentId;
+                    if (confirm('Are you sure you want to process a refund for this payment?')) {
+                        fetch(`/admin/payments/${paymentId}/refund`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to process refund');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred');
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

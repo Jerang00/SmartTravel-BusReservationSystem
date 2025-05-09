@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Routes - SmartTravel</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <%- include('partials/navbar') %>
+
+        <main class="routes-section">
+            <div class="routes-container">
+                <h1>Available Routes</h1>
+                <% if (routes && routes.length> 0) { %>
+                    <div class="routes-grid">
+                        <% routes.forEach(route=> { %>
+                            <div class="route-card">
+                                <div class="route-info">
+                                    <h3>
+                                        <%= route.Source %> to <%= route.Destination %>
+                                    </h3>
+                                    <p class="distance"><i class="fas fa-road"></i>
+                                        <%= route.Distance %> km
+                                    </p>
+                                    <p class="duration"><i class="fas fa-clock"></i>
+                                        <%= route.EstimatedTime %>
+                                    </p>
+                                </div>
+                                <button
+                                    onclick="openRouteModal('<%= route.Source %>', '<%= route.Destination %>', '<%= route.Distance %>', '<%= route.EstimatedTime %>', '<%= route.ScheduleID %>')"
+                                    class="book-now">
+                                    Book Now
+                                </button>
+                            </div>
+                            <% }); %>
+                    </div>
+                    <% } else { %>
+                        <div class="no-routes">
+                            <i class="fas fa-route"></i>
+                            <h2>No Routes Available</h2>
+                            <p>We're currently updating our routes. Please check back later.</p>
+                            <a href="/" class="btn-home">Return to Home</a>
+                        </div>
+                        <% } %>
+            </div>
+        </main>
+
+        <!-- Route Booking Modal -->
+        <div class="modal" id="routeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Select Your Seats</h2>
+                    <button class="close-modal" onclick="closeModal()">&times;</button>
+                </div>
+                <div class="route-details">
+                    <h3 id="modalRouteName"></h3>
+                    <p id="modalDistance"></p>
+                    <p id="modalDuration"></p>
+                    <p id="modalPrice"></p>
+                    <div class="seat-map">
+                        <div class="driver-seat"></div>
+                        <div class="seat-rows">
+                            <% for(let row=1; row<=7; row++) { %>
+                                <div class="seat-row">
+                                    <div class="seat-pair">
+                                        <div class="seat available" data-seat-number="A<%= row %>"
+                                            onclick="toggleSeat(this, 'A<%= row %>')">A<%= row %>
+                                        </div>
+                                        <div class="seat available" data-seat-number="B<%= row %>"
+                                            onclick="toggleSeat(this, 'B<%= row %>')">B<%= row %>
+                                        </div>
+                                    </div>
+                                    <div class="aisle"></div>
+                                    <div class="seat-pair">
+                                        <div class="seat available" data-seat-number="C<%= row %>"
+                                            onclick="toggleSeat(this, 'C<%= row %>')">C<%= row %>
+                                        </div>
+                                        <div class="seat available" data-seat-number="D<%= row %>"
+                                            onclick="toggleSeat(this, 'D<%= row %>')">D<%= row %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+                        </div>
+                    </div>
+                    <div class="booking-summary">
+                        <p>Selected Seats: <span id="selectedSeatsCount">0</span></p>
+                        <p>Price per Seat: ₹<span id="pricePerSeat">0</span></p>
+                        <p>Total Price: ₹<span id="totalPrice">0</span></p>
+                    </div>
+                    <div class="modal-actions">
+                        <a href="#" id="proceedToBooking" class="book-now">Proceed to Payment</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+
+            <script>
+                let selectedSeats = new Set();
+                let selectedScheduleId = null;
+
+                function openRouteModal(source, destination, distance, time, scheduleId) {
+                    const modal = document.getElementById('routeModal');
+                    document.getElementById('modalRouteName').textContent = `${source} to ${destination}`;
+                    document.getElementById('modalDistance').textContent = `Distance: ${distance} km`;
+                    document.getElementById('modalDuration').textContent = `Duration: ${time}`;
+                    selectedScheduleId = scheduleId; // Store the scheduleId
+
+                    // Reset selections
+                    selectedSeats.clear();
+                    updateSeatSummary();
+
+                    // Fetch price and seat availability from database
+                    fetch(`/api/route-price?from=${encodeURIComponent(source)}&to=${encodeURIComponent(destination)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.price) {
+                                document.getElementById('modalPrice').textContent = `Price: ₹${data.price}`;
+                                document.getElementById('pricePerSeat').textContent = data.price.toFixed(2);
+                                window.currentRoutePrice = data.price;
+                                updateSeatSummary();
+                            }
+                        })
+                        .catch(error => console.error('Error fetching price:', error));
+
+                    // Fetch unavailable seats
+                    fetch(`/api/unavailable-seats?from=${encodeURIComponent(source)}&to=${encodeURIComponent(destination)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.unavailableSeats) {
+                                // Reset all seats to available first
+                                const seats = document.querySelectorAll('.seat');
+                                seats.forEach(seat => {
+                                    seat.classList.remove('booked', 'selected');
+                                    seat.classList.add('available');
+                                });
+
+                                // Mark unavailable seats
+                                data.unavailableSeats.forEach(seatNumber => {
+                                    const seatElement = document.querySelector(`.seat[data-seat-number="${seatNumber}"]`);
+                                    if (seatElement) {
+                                        seatElement.classList.add('booked');
+                                    }
+                                });
+                            }
+                        })
+                        .catch(error => console.error('Error fetching seat availability:', error));
+
+                    modal.style.display = 'block';
+
+                    // Update the proceed button to go directly to payment
+                    const proceedButton = document.getElementById('proceedToBooking');
+                    proceedButton.onclick = async function (e) {
+                        e.preventDefault();
+                        if (selectedSeats.size === 0) {
+                            alert('Please select at least one seat to proceed.');
+                            return;
+                        }
+
+                        // Gather booking data
+                        const bookingData = {
+                            source: source,
+                            destination: destination,
+                            seats: Array.from(selectedSeats),
+                            pricePerSeat: window.currentRoutePrice || 800,
+                            totalPrice: parseFloat(document.getElementById('totalPrice').textContent),
+                            scheduleId: selectedScheduleId // Include scheduleId
+                        };
+
+                        console.log("Booking Data:", bookingData); // Debugging line
+
+                        proceedButton.disabled = true;
+                        proceedButton.textContent = 'Processing...';
+
+                        try {
+                            const response = await fetch('/api/route-booking', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(bookingData)
+                            });
+
+                            if (!response.ok) {
+                                const errorText = await response.text();
+                                throw new Error(errorText || 'Failed to create booking');
+                            }
+
+                            const data = await response.json();
+                            if (data.bookingId) {
+                                window.location.href = `/payment?bookingId=${data.bookingId}`;
+                            } else {
+                                alert('Booking failed: Invalid response from server.');
+                            }
+                        } catch (error) {
+                            alert('Booking failed: ' + error.message);
+                        } finally {
+                            proceedButton.disabled = false;
+                            proceedButton.textContent = 'Proceed to Payment';
+                        }
+                    };
+                }
+
+                function closeModal() {
+                    const modal = document.getElementById('routeModal');
+                    modal.style.display = 'none';
+                    selectedSeats.clear();
+                    updateSeatSummary();
+                }
+
+                function toggleSeat(seatElement, seatNumber) {
+                    if (seatElement.classList.contains('booked')) {
+                        return; // Can't select booked seats
+                    }
+
+                    if (seatElement.classList.contains('selected')) {
+                        seatElement.classList.remove('selected');
+                        selectedSeats.delete(seatNumber);
+                    } else {
+                        seatElement.classList.add('selected');
+                        selectedSeats.add(seatNumber);
+                    }
+
+                    updateSeatSummary();
+                }
+
+                function updateSeatSummary() {
+                    const price = window.currentRoutePrice || 800; // Updated fallback price to 800
+                    document.getElementById('selectedSeatsCount').textContent = selectedSeats.size;
+                    document.getElementById('pricePerSeat').textContent = price.toFixed(2);
+                    document.getElementById('totalPrice').textContent = (selectedSeats.size * price).toFixed(2);
+                }
+
+                // Close modal when clicking outside
+                window.onclick = function (event) {
+                    const modal = document.getElementById('routeModal');
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                }
+            </script>
+</body>
+
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartTravel - Your Trusted Bus Booking Platform</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Travel Smart, Travel Easy</h1>
+            <p>Book your bus tickets with ease and enjoy a comfortable journey across cities.</p>
+            <div class="hero-buttons">
+                <a href="/booking" class="btn-primary">Book Now</a>
+                <a href="/routes" class="btn-secondary">View Routes</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="section-title">
+            <h2>Why Choose SmartTravel?</h2>
+            <p>Experience the best in bus travel with our premium features and services</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-ticket-alt"></i>
+                </div>
+                <h3>Easy Booking</h3>
+                <p>Book your tickets in just a few clicks with our user-friendly platform</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h3>Wide Coverage</h3>
+                <p>Access routes connecting major cities and towns across the country</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure Payments</h3>
+                <p>Multiple secure payment options for your convenience and safety</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>24/7 Support</h3>
+                <p>Round-the-clock customer support to assist you anytime</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Routes Section -->
+    <section class="routes-section">
+        <div class="section-title">
+            <h2>Popular Routes</h2>
+            <p>Discover our most traveled routes with competitive prices</p>
+        </div>
+        <div class="routes-grid">
+            <% if (typeof popularRoutes !== 'undefined' && popularRoutes.length > 0) { %>
+                <% popularRoutes.forEach(route => { %>
+                    <div class="route-card">
+                        <div class="route-info">
+                            <h3><%= route.Source %> to <%= route.Destination %></h3>
+                            <div class="route-details">
+                                <span><i class="fas fa-road"></i> <%= route.Distance %> km</span>
+                                <span><i class="fas fa-clock"></i> <%= route.EstimatedTime %></span>
+                            </div>
+                            <div class="route-price">From ₹<%= route.MinPrice %></div>
+                            <a href="/booking?from=<%= route.Source %>&to=<%= route.Destination %>" class="btn-primary">Book Now</a>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="route-card">
+                    <div class="route-info">
+                        <h3>Mumbai to Pune</h3>
+                        <div class="route-details">
+                            <span><i class="fas fa-road"></i> 150 km</span>
+                            <span><i class="fas fa-clock"></i> 3 hours</span>
+                        </div>
+                        <div class="route-price">From ₹500</div>
+                        <a href="/booking" class="btn-primary">Book Now</a>
+                    </div>
+                </div>
+                <div class="route-card">
+                    <div class="route-info">
+                        <h3>Delhi to Agra</h3>
+                        <div class="route-details">
+                            <span><i class="fas fa-road"></i> 200 km</span>
+                            <span><i class="fas fa-clock"></i> 4 hours</span>
+                        </div>
+                        <div class="route-price">From ₹600</div>
+                        <a href="/booking" class="btn-primary">Book Now</a>
+                    </div>
+                </div>
+                <div class="route-card">
+                    <div class="route-info">
+                        <h3>Bangalore to Chennai</h3>
+                        <div class="route-details">
+                            <span><i class="fas fa-road"></i> 350 km</span>
+                            <span><i class="fas fa-clock"></i> 6 hours</span>
+                        </div>
+                        <div class="route-price">From ₹800</div>
+                        <a href="/booking" class="btn-primary">Book Now</a>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Start Your Journey?</h2>
+            <p>Book your tickets now and experience comfortable travel with SmartTravel</p>
+            <a href="/booking" class="btn-primary">Book Your Ticket</a>
+        </div>
+    </section>
+
+    <%- include('partials/footer') %>
+</body>
+</html>
