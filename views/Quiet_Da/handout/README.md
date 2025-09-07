@@ -1,5 +1,6 @@
 ## Quiet Data
 ---
-Author: Jebarson Immanuel
+### Author: Jebarson Immanuel
 ---
-One of my colleagues has a LinkedIn profile that looks very polished and professional. But sometimes appearances can be deceiving. Can you find the detail that shows they might not be as professional as they seem?
+One of my colleagues has just started using LinkedIn. Their profile looks very polished and professional at first glance, with projects, skills, and achievements neatly listed. But sometimes appearances can be deceiving. Can you find the detail that shows they might not be as professional as they seem?
+
