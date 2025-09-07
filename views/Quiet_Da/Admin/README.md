@@ -2,7 +2,7 @@
 
 ---
 
-1. Navigate to the Profile
-2. Go the project Section and download the PDF from google drive
-3. Use any online EXIF tool and the author parameter reveals the flag HTB{pr0f3ss10nal_but_n0t}
+1. Open the LinkedIn profile.
+2. Find the Projects section and download the PDF.
+3. Check the file’s metadata using any EXIF tool, the author field contains the flag: HTB{pr0f3ss10nal_but_n0t}
 
