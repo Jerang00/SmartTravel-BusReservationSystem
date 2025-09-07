@@ -2,5 +2,9 @@
 
 ##### Author: Jebarson Immanuel
 ---
-One of my colleagues has just started using LinkedIn. Their profile looks very polished and professional at first glance, with projects, skills, and achievements neatly listed. But sometimes appearances can be deceiving. Can you find the detail that shows they might not be as professional as they seem?
+One of my colleagues has just started adding their details on LinkedIn. The profile doesn’t look very professional yet, but sometimes small mistakes or overlooked details can reveal more than you expect.A closer look might reveal something interesting.
+
+[LinkedIn Profile] (www.linkedin.com/in/david-richards1337)
+
+
 
