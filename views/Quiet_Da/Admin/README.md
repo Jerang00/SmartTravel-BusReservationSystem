@@ -1,8 +1,8 @@
-## Quiet Data
-
-Author: Jebarson Immanuel
+## Solution
 
 ---
 
-Question:
-One of my colleagues has a LinkedIn profile that looks very polished and professional. But sometimes appearances can be deceiving. Can you find the detail that shows they might not be as professional as they seem?
+1. Navigate to the Profile
+2. Go the project Section and download the PDF from google drive
+3. Use any online EXIF tool and the author parameter reveals the flag HTB{pr0f3ss10nal_but_n0t}
+
